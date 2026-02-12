@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Critical for mobile -->
-    <title>Start-Up Manifesto (Landscape)</title>
+    <title>Start-Up Manifesto</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,141 +31,149 @@
             cursor: crosshair;
         }
 
-        /* LANDSCAPE A4 DIMENSIONS */
-        .a4-landscape {
+        /* RESPONSIVE DIMENSIONS:
+           Mobile: Auto height (scrollable), 100% width.
+           Desktop (md+): Fixed A4 Landscape dimensions.
+        */
+        .manifesto-container {
             width: 100%;
-            max-width: 297mm;
-            min-height: 210mm;
-            aspect-ratio: 297/210;
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .manifesto-container {
+                max-width: 297mm;
+                min-height: 210mm;
+                aspect-ratio: 297/210;
+            }
         }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen p-4 flex flex-col items-center justify-start gap-6">
 
     <!-- Header / Intro -->
-    <div class="text-center text-white mt-4 mb-2">
-        <h1 class="text-2xl font-bold tracking-wider text-emerald-400">MANIFESTO</h1>
-        <p class="text-slate-400 text-sm">Our non-negotiables</p>
+    <div class="text-center text-white mt-2 mb-2">
+        <h1 class="text-xl md:text-2xl font-bold tracking-wider text-emerald-400">MANIFESTO APP</h1>
+        <p class="text-slate-400 text-xs md:text-sm">Create on Phone • Download as A4</p>
     </div>
 
-    <!-- MAIN MANIFESTO CARD (LANDSCAPE) -->
-    <!-- Changed padding from p-8 to p-6 to gain vertical space -->
-    <div id="manifesto-card" class="a4-landscape bg-white p-6 rounded-sm shadow-2xl relative overflow-hidden flex flex-col mx-auto">
+    <!-- MAIN MANIFESTO CARD -->
+    <!-- On mobile, this is just a white column. On desktop, it becomes A4. -->
+    <div id="manifesto-card" class="manifesto-container p-6 md:p-8 rounded-sm shadow-2xl flex flex-col mx-auto">
         
         <!-- Decorative Border -->
         <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-slate-800 to-emerald-500"></div>
         <div class="absolute bottom-0 right-0 w-full h-2 bg-slate-100"></div>
 
-        <!-- MAIN GRID LAYOUT (50/50 SPLIT) -->
-        <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
+        <!-- MAIN GRID LAYOUT -->
+        <!-- Stack on mobile (grid-cols-1), Split on desktop (md:grid-cols-2) -->
+        <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 h-full">
             
             <!-- LEFT COLUMN: BRAND IDENTITY -->
-            <div class="flex flex-col h-full border-r border-slate-100 pr-6">
+            <div class="flex flex-col h-full md:border-r md:border-slate-100 md:pr-6">
                 <!-- Header -->
-                <header class="mb-4 mt-2">
-                    <h2 class="text-xs font-bold text-slate-500 tracking-[0.3em] uppercase mb-1">Official Document</h2>
-                    <h1 class="text-4xl font-black text-slate-800 tracking-tight leading-none">FOUNDERS<br>AGREEMENT</h1>
+                <header class="mb-6 mt-2">
+                    <h2 class="text-[10px] md:text-xs font-bold text-slate-500 tracking-[0.3em] uppercase mb-1">Official Document</h2>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight leading-none">FOUNDERS<br>AGREEMENT</h1>
                 </header>
 
                 <!-- Start-Up Name -->
                 <div class="mb-6 group">
-                    <label class="block text-xs font-bold text-emerald-600 uppercase mb-1">Start-Up Name</label>
+                    <label class="block text-[10px] md:text-xs font-bold text-emerald-600 uppercase mb-1">Start-Up Name</label>
                     <input type="text" id="input-company" placeholder="NAME HERE" 
-                        class="w-full text-4xl font-bold text-slate-900 border-b-4 border-slate-200 focus:border-emerald-500 outline-none transition-colors py-1 placeholder-slate-300 bg-transparent uppercase">
+                        class="w-full text-3xl md:text-4xl font-bold text-slate-900 border-b-4 border-slate-200 focus:border-emerald-500 outline-none transition-colors py-1 placeholder-slate-300 bg-transparent uppercase">
                 </div>
 
-                <!-- Big Poster Area (Fills remaining space) -->
-                <div class="flex-grow flex flex-col relative mb-4">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Team Identity</label>
-                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors cursor-pointer min-h-[150px]" id="image-drop-zone">
+                <!-- Big Poster Area -->
+                <div class="flex-grow flex flex-col relative mb-4 md:mb-0 min-h-[200px]">
+                    <label class="block text-[10px] md:text-xs font-bold text-slate-400 uppercase mb-2">Team Identity</label>
+                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors cursor-pointer h-full" id="image-drop-zone">
                         <input type="file" id="poster-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         
                         <div id="upload-placeholder" class="text-center p-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-slate-400 group-hover:text-emerald-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 mx-auto text-slate-400 group-hover:text-emerald-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-sm font-medium text-slate-500 group-hover:text-emerald-600">Upload Logo/Poster</span>
+                            <span class="text-xs md:text-sm font-medium text-slate-500 group-hover:text-emerald-600">Upload Logo/Poster</span>
                         </div>
                         <img id="poster-preview" class="absolute inset-0 w-full h-full object-cover hidden z-10" alt="Team Poster">
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: TERMS & EXECUTION (Vertical Stack) -->
-            <!-- Adjusted spacing to ensure fit -->
+            <!-- RIGHT COLUMN: TERMS & EXECUTION -->
             <div class="flex flex-col h-full pt-1">
                 
-                <!-- 1. The Rules (Top Half of Right Col) -->
-                <!-- Removed flex-grow to prevent pushing signatures off, changed mb-6 to mb-4 -->
-                <div class="mb-4">
-                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3 flex items-center gap-2">
+                <!-- 1. The Rules -->
+                <div class="mb-6 md:mb-4">
+                    <h3 class="text-xs md:text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3 flex items-center gap-2">
                         <span class="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded">TERMS</span>
                         The 4 Golden Rules
                     </h3>
                     
-                    <!-- Changed gap-4 to gap-2 for tighter packing -->
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-3 md:gap-2">
                         <!-- Rule 1 -->
-                        <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Work Schedule</label>
-                            <!-- Changed rows="3" to rows="2" to save height -->
-                            <textarea id="input-rule1" rows="2" placeholder="e.g. Everyone must start at ... and leave at ..." class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
+                        <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
+                            <label class="md:w-24 text-[10px] font-bold text-emerald-600 uppercase md:text-right shrink-0 md:mt-2">Work Schedule</label>
+                            <textarea id="input-rule1" rows="2" placeholder="Start time, end time..." class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
                         
                         <!-- Rule 2 -->
-                        <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Location</label>
-                            <textarea id="input-rule2" rows="2" placeholder="e.g. remote? - on site?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
+                        <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
+                            <label class="md:w-24 text-[10px] font-bold text-emerald-600 uppercase md:text-right shrink-0 md:mt-2">Location</label>
+                            <textarea id="input-rule2" rows="2" placeholder="Remote? On site?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
 
                         <!-- Rule 3 -->
-                        <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Communication Style</label>
-                            <textarea id="input-rule3" rows="2" placeholder="How are you planning to pass information?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
+                        <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
+                            <label class="md:w-24 text-[10px] font-bold text-emerald-600 uppercase md:text-right shrink-0 md:mt-2">Comms Style</label>
+                            <textarea id="input-rule3" rows="2" placeholder="WhatsApp? Slack?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
 
                         <!-- Rule 4 -->
-                        <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Conflict Resolution</label>
-                            <textarea id="input-rule4" rows="2" placeholder="e.g. Vote" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
+                        <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
+                            <label class="md:w-24 text-[10px] font-bold text-emerald-600 uppercase md:text-right shrink-0 md:mt-2">Conflict Plan</label>
+                            <textarea id="input-rule4" rows="2" placeholder="Majority vote?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. The Signatures (Bottom Half of Right Col) -->
-                <div class="mt-auto pb-4"> <!-- mt-auto pushes this to bottom, but pb-4 ensures padding from edge -->
-                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-2">Founding Members Execution</h3>
+                <!-- 2. The Signatures -->
+                <div class="mt-auto pb-4">
+                    <h3 class="text-xs md:text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-2">Founding Members Execution</h3>
                     
                     <div class="flex flex-col gap-2">
                         <!-- Sig 1 -->
                         <div class="flex items-center gap-3">
-                            <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 1</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 1</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig1" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig1" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig1')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
                         <!-- Sig 2 -->
                         <div class="flex items-center gap-3">
-                            <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 2</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 2</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig2" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig2" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig2')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
                         <!-- Sig 3 -->
                         <div class="flex items-center gap-3">
-                            <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 3</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 3</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig3" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig3" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig3')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
                         <!-- Sig 4 -->
                         <div class="flex items-center gap-3">
-                            <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 4</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 4</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig4" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig4" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig4')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -181,7 +189,7 @@
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div class="w-full max-w-md pb-10 mt-4">
+    <div class="w-full max-w-md pb-10 mt-4 px-4">
         <button id="download-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -242,10 +250,13 @@
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
+                // Important: Account for canvas scaling
                 const scaleX = canvas.width / rect.width;
                 const scaleY = canvas.height / rect.height;
+                
                 let clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
                 return {
                     x: (clientX - rect.left) * scaleX,
                     y: (clientY - rect.top) * scaleY
@@ -260,6 +271,7 @@
 
             function draw(e) {
                 if (!isDrawing) return;
+                // Important: Prevents scrolling on touch
                 if(e.type === 'touchmove') e.preventDefault();
                 const pos = getPos(e);
                 ctx.beginPath();
@@ -275,6 +287,7 @@
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', endDraw);
             canvas.addEventListener('mouseout', endDraw);
+            // Passive: false is crucial for preventing default scroll behavior
             canvas.addEventListener('touchstart', startDraw, { passive: false });
             canvas.addEventListener('touchmove', draw, { passive: false });
             canvas.addEventListener('touchend', endDraw);
@@ -301,11 +314,21 @@
                 backgroundColor: '#ffffff',
                 logging: false,
                 // Landscape Dimensions (approx A4 at 96dpi)
+                // This forces the generator to think the screen is wide
                 windowWidth: 1123, 
                 windowHeight: 794,
                 onclone: (clonedDoc) => {
-                    // Extra safety measure: explicitly set value attribute for cloned inputs
-                    // This sometimes helps with rendering text that wasn't updated in DOM attributes
+                    // Force width on the clone to ensure desktop layout triggers
+                    const clonedCard = clonedDoc.getElementById('manifesto-card');
+                    if(clonedCard) {
+                        clonedCard.style.width = '1123px';
+                        clonedCard.style.height = '794px';
+                        clonedCard.style.maxWidth = 'none';
+                        clonedCard.style.minHeight = 'none';
+                        clonedCard.style.aspectRatio = 'auto';
+                    }
+                    
+                    // Transfer input values
                     const inputs = ['input-rule1', 'input-rule2', 'input-rule3', 'input-rule4', 'input-company'];
                     inputs.forEach(id => {
                         const original = document.getElementById(id);
