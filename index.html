@@ -31,6 +31,14 @@
             cursor: crosshair;
         }
 
+        /* Image Editor Styles */
+        .grab-cursor {
+            cursor: grab;
+        }
+        .grab-cursor:active {
+            cursor: grabbing;
+        }
+
         /* RESPONSIVE DIMENSIONS:
            Mobile: Auto height (scrollable), 100% width.
            Desktop (md+): Fixed A4 Landscape dimensions.
@@ -86,20 +94,37 @@
                         class="w-full text-3xl md:text-4xl font-bold text-slate-900 border-b-4 border-slate-200 focus:border-emerald-500 outline-none transition-colors py-1 placeholder-slate-300 bg-transparent uppercase">
                 </div>
 
-                <!-- Big Poster Area -->
-                <div class="flex-grow flex flex-col relative mb-4 md:mb-0 min-h-[200px]">
-                    <label class="block text-[10px] md:text-xs font-bold text-slate-400 uppercase mb-2">Team Identity</label>
-                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors cursor-pointer h-full" id="image-drop-zone">
-                        <input type="file" id="poster-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                <!-- Big Poster Area with Manual Crop/Pan -->
+                <div class="flex-grow flex flex-col relative mb-4 md:mb-0 min-h-[250px]">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-[10px] md:text-xs font-bold text-slate-400 uppercase">Team Identity</label>
+                        <!-- Image Controls (Hidden initially) -->
+                        <div id="img-controls" class="hidden flex items-center gap-2">
+                            <span class="text-[9px] text-slate-400 uppercase">Zoom</span>
+                            <input type="range" id="zoom-slider" min="0.1" max="3" step="0.1" value="1" class="w-16 md:w-24 accent-emerald-500 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <button id="change-img-btn" class="text-[9px] text-emerald-600 hover:text-emerald-800 font-bold uppercase ml-2 bg-slate-100 px-2 py-1 rounded">Change</button>
+                        </div>
+                    </div>
+
+                    <!-- Drop Zone / Viewport -->
+                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors h-full" id="image-drop-zone">
                         
-                        <div id="upload-placeholder" class="text-center p-4">
+                        <!-- File Input (Visible initially, hidden after upload) -->
+                        <input type="file" id="poster-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30">
+                        
+                        <!-- Placeholder Text -->
+                        <div id="upload-placeholder" class="text-center p-4 pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 mx-auto text-slate-400 group-hover:text-emerald-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-xs md:text-sm font-medium text-slate-500 group-hover:text-emerald-600">Upload Logo/Poster</span>
+                            <span class="text-xs md:text-sm font-medium text-slate-500 group-hover:text-emerald-600">Tap to Upload Poster</span>
                         </div>
-                        <img id="poster-preview" class="absolute inset-0 w-full h-full object-cover hidden z-10" alt="Team Poster">
+
+                        <!-- The Image (Draggable) -->
+                        <!-- Origin center allows logical zooming -->
+                        <img id="poster-preview" class="absolute hidden z-20 grab-cursor origin-center" alt="Team Poster" style="transform: translate(0px, 0px) scale(1);">
                     </div>
+                    <p id="drag-hint" class="hidden text-[9px] text-slate-300 text-center mt-1">Drag image to position • Use slider to zoom</p>
                 </div>
             </div>
 
@@ -140,16 +165,16 @@
                     </div>
                 </div>
 
-                <!-- 2. The Signatures -->
+                <!-- 2. The Signatures (Only 3) -->
                 <div class="mt-auto pb-4">
                     <h3 class="text-xs md:text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-2">Founding Members Execution</h3>
                     
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-3">
                         <!-- Sig 1 -->
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 1</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig1" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
+                                <canvas id="sig1" width="250" height="55" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig1')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -157,7 +182,7 @@
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 2</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig2" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
+                                <canvas id="sig2" width="250" height="55" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig2')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -165,16 +190,8 @@
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 3</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig3" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
+                                <canvas id="sig3" width="250" height="55" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
                                 <button onclick="clearPad('sig3')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
-                            </div>
-                        </div>
-                        <!-- Sig 4 -->
-                        <div class="flex items-center gap-3">
-                            <div class="text-[9px] font-bold text-slate-400 uppercase w-12 md:w-16 text-right">Founder 4</div>
-                            <div class="relative flex-grow">
-                                <canvas id="sig4" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full touch-none"></canvas>
-                                <button onclick="clearPad('sig4')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
                     </div>
@@ -208,7 +225,7 @@
                 const savedValue = localStorage.getItem(id);
                 if (savedValue) document.getElementById(id).value = savedValue;
             });
-            ['sig1', 'sig2', 'sig3', 'sig4'].forEach(setupCanvas);
+            ['sig1', 'sig2', 'sig3'].forEach(setupCanvas);
         });
 
         inputIds.forEach(id => {
@@ -217,27 +234,116 @@
             });
         });
 
-        // --- 2. IMAGE UPLOAD ---
+        // --- 2. IMAGE UPLOAD & MANIPULATION ---
         const imageInput = document.getElementById('poster-upload');
         const imagePreview = document.getElementById('poster-preview');
         const uploadPlaceholder = document.getElementById('upload-placeholder');
+        const imgControls = document.getElementById('img-controls');
+        const changeImgBtn = document.getElementById('change-img-btn');
+        const zoomSlider = document.getElementById('zoom-slider');
+        const dragHint = document.getElementById('drag-hint');
+        const dropZone = document.getElementById('image-drop-zone');
 
+        // Image State
+        let imgState = {
+            scale: 1,
+            panning: false,
+            pointX: 0,
+            pointY: 0,
+            startX: 0,
+            startY: 0
+        };
+
+        // Reset State helper
+        function resetImageState() {
+            imgState = { scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0 };
+            zoomSlider.value = 1;
+            updateTransform();
+        }
+
+        // Apply CSS Transform
+        function updateTransform() {
+            imagePreview.style.transform = `translate(${imgState.pointX}px, ${imgState.pointY}px) scale(${imgState.scale})`;
+        }
+
+        // Handle File Select
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
+                    
+                    // UI Transitions
                     imagePreview.classList.remove('hidden');
                     uploadPlaceholder.classList.add('hidden');
+                    imgControls.classList.remove('hidden');
+                    imgControls.classList.add('flex');
+                    dragHint.classList.remove('hidden');
+                    
+                    // IMPORTANT: Hide the input so it doesn't block mouse events on the image
+                    imageInput.classList.add('hidden');
+                    
+                    resetImageState();
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        // --- 3. CANVAS LOGIC ---
+        // Handle Change Button
+        changeImgBtn.addEventListener('click', () => {
+            // Trigger the hidden input
+            imageInput.click();
+        });
+
+        // Handle Zoom Slider
+        zoomSlider.addEventListener('input', (e) => {
+            imgState.scale = parseFloat(e.target.value);
+            updateTransform();
+        });
+
+        // --- DRAG / PAN LOGIC ---
+        
+        function startPan(e) {
+            e.preventDefault(); // Prevent scrolling on touch
+            imgState.panning = true;
+            imgState.startX = (e.touches ? e.touches[0].clientX : e.clientX) - imgState.pointX;
+            imgState.startY = (e.touches ? e.touches[0].clientY : e.clientY) - imgState.pointY;
+            imagePreview.classList.add('cursor-grabbing');
+        }
+
+        function pan(e) {
+            if (!imgState.panning) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            imgState.pointX = clientX - imgState.startX;
+            imgState.pointY = clientY - imgState.startY;
+            updateTransform();
+        }
+
+        function endPan() {
+            imgState.panning = false;
+            imagePreview.classList.remove('cursor-grabbing');
+        }
+
+        // Attach listeners to the DROPZONE or IMAGE
+        // We attach to dropZone to catch events slightly outside the image if it shrunk
+        dropZone.addEventListener('mousedown', startPan);
+        dropZone.addEventListener('touchstart', startPan, { passive: false });
+
+        window.addEventListener('mousemove', pan);
+        window.addEventListener('touchmove', pan, { passive: false });
+
+        window.addEventListener('mouseup', endPan);
+        window.addEventListener('touchend', endPan);
+
+
+        // --- 3. SIGNATURE CANVAS LOGIC ---
         function setupCanvas(canvasId) {
             const canvas = document.getElementById(canvasId);
+            if (!canvas) return; 
             const ctx = canvas.getContext('2d');
             let isDrawing = false;
             let lastX = 0; 
@@ -250,17 +356,11 @@
 
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
-                // Important: Account for canvas scaling
                 const scaleX = canvas.width / rect.width;
                 const scaleY = canvas.height / rect.height;
-                
                 let clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                
-                return {
-                    x: (clientX - rect.left) * scaleX,
-                    y: (clientY - rect.top) * scaleY
-                };
+                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
             }
 
             function startDraw(e) {
@@ -271,7 +371,6 @@
 
             function draw(e) {
                 if (!isDrawing) return;
-                // Important: Prevents scrolling on touch
                 if(e.type === 'touchmove') e.preventDefault();
                 const pos = getPos(e);
                 ctx.beginPath();
@@ -287,7 +386,6 @@
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', endDraw);
             canvas.addEventListener('mouseout', endDraw);
-            // Passive: false is crucial for preventing default scroll behavior
             canvas.addEventListener('touchstart', startDraw, { passive: false });
             canvas.addEventListener('touchmove', draw, { passive: false });
             canvas.addEventListener('touchend', endDraw);
@@ -308,17 +406,18 @@
             downloadBtn.innerHTML = "Processing...";
             downloadBtn.disabled = true;
 
+            // Hide UI elements that shouldn't appear in the PDF
+            dragHint.classList.add('opacity-0');
+            imgControls.classList.add('opacity-0');
+
             html2canvas(cardArea, {
                 scale: 2, 
                 useCORS: true, 
                 backgroundColor: '#ffffff',
                 logging: false,
-                // Landscape Dimensions (approx A4 at 96dpi)
-                // This forces the generator to think the screen is wide
                 windowWidth: 1123, 
                 windowHeight: 794,
                 onclone: (clonedDoc) => {
-                    // Force width on the clone to ensure desktop layout triggers
                     const clonedCard = clonedDoc.getElementById('manifesto-card');
                     if(clonedCard) {
                         clonedCard.style.width = '1123px';
@@ -327,8 +426,6 @@
                         clonedCard.style.minHeight = 'none';
                         clonedCard.style.aspectRatio = 'auto';
                     }
-                    
-                    // Transfer input values
                     const inputs = ['input-rule1', 'input-rule2', 'input-rule3', 'input-rule4', 'input-company'];
                     inputs.forEach(id => {
                         const original = document.getElementById(id);
@@ -337,6 +434,10 @@
                     });
                 }
             }).then(canvas => {
+                // Restore UI elements
+                dragHint.classList.remove('opacity-0');
+                imgControls.classList.remove('opacity-0');
+
                 const link = document.createElement('a');
                 link.download = `manifesto-landscape-${Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -346,6 +447,9 @@
             }).catch(err => {
                 console.error(err);
                 alert("Error generating image.");
+                // Restore UI elements in case of error
+                dragHint.classList.remove('opacity-0');
+                imgControls.classList.remove('opacity-0');
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
             });
