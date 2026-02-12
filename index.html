@@ -49,34 +49,35 @@
     </div>
 
     <!-- MAIN MANIFESTO CARD (LANDSCAPE) -->
-    <div id="manifesto-card" class="a4-landscape bg-white p-8 rounded-sm shadow-2xl relative overflow-hidden flex flex-col mx-auto">
+    <!-- Changed padding from p-8 to p-6 to gain vertical space -->
+    <div id="manifesto-card" class="a4-landscape bg-white p-6 rounded-sm shadow-2xl relative overflow-hidden flex flex-col mx-auto">
         
         <!-- Decorative Border -->
         <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-slate-800 to-emerald-500"></div>
         <div class="absolute bottom-0 right-0 w-full h-2 bg-slate-100"></div>
 
         <!-- MAIN GRID LAYOUT (50/50 SPLIT) -->
-        <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-10 h-full">
+        <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
             
             <!-- LEFT COLUMN: BRAND IDENTITY -->
-            <div class="flex flex-col h-full border-r border-slate-100 pr-8">
+            <div class="flex flex-col h-full border-r border-slate-100 pr-6">
                 <!-- Header -->
-                <header class="mb-6 mt-2">
+                <header class="mb-4 mt-2">
                     <h2 class="text-xs font-bold text-slate-500 tracking-[0.3em] uppercase mb-1">Official Document</h2>
                     <h1 class="text-4xl font-black text-slate-800 tracking-tight leading-none">FOUNDERS<br>AGREEMENT</h1>
                 </header>
 
                 <!-- Start-Up Name -->
-                <div class="mb-8 group">
+                <div class="mb-6 group">
                     <label class="block text-xs font-bold text-emerald-600 uppercase mb-1">Start-Up Name</label>
                     <input type="text" id="input-company" placeholder="NAME HERE" 
                         class="w-full text-4xl font-bold text-slate-900 border-b-4 border-slate-200 focus:border-emerald-500 outline-none transition-colors py-1 placeholder-slate-300 bg-transparent uppercase">
                 </div>
 
                 <!-- Big Poster Area (Fills remaining space) -->
-                <div class="flex-grow flex flex-col relative">
+                <div class="flex-grow flex flex-col relative mb-4">
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Team Identity</label>
-                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors cursor-pointer min-h-[200px]" id="image-drop-zone">
+                    <div class="relative w-full flex-grow bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center group hover:border-emerald-400 transition-colors cursor-pointer min-h-[150px]" id="image-drop-zone">
                         <input type="file" id="poster-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                         
                         <div id="upload-placeholder" class="text-center p-4">
@@ -91,52 +92,56 @@
             </div>
 
             <!-- RIGHT COLUMN: TERMS & EXECUTION (Vertical Stack) -->
-            <div class="flex flex-col h-full pt-2">
+            <!-- Adjusted spacing to ensure fit -->
+            <div class="flex flex-col h-full pt-1">
                 
                 <!-- 1. The Rules (Top Half of Right Col) -->
-                <div class="mb-6 flex-grow">
-                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                <!-- Removed flex-grow to prevent pushing signatures off, changed mb-6 to mb-4 -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3 flex items-center gap-2">
                         <span class="bg-slate-800 text-white text-[10px] px-2 py-0.5 rounded">TERMS</span>
                         The 4 Golden Rules
                     </h3>
                     
-                    <div class="flex flex-col gap-4">
+                    <!-- Changed gap-4 to gap-2 for tighter packing -->
+                    <div class="flex flex-col gap-2">
                         <!-- Rule 1 -->
                         <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-3">Work Schedule</label>
-                            <textarea id="input-rule1" rows="3" placeholder="e.g. Everyone must start at ... and leave at ..." class="w-full text-sm font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none"></textarea>
+                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Work Schedule</label>
+                            <!-- Changed rows="3" to rows="2" to save height -->
+                            <textarea id="input-rule1" rows="2" placeholder="e.g. Everyone must start at ... and leave at ..." class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
                         
                         <!-- Rule 2 -->
                         <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-3">Location</label>
-                            <textarea id="input-rule2" rows="3" placeholder="e.g. remote? - on site?" class="w-full text-sm font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none"></textarea>
+                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Location</label>
+                            <textarea id="input-rule2" rows="2" placeholder="e.g. remote? - on site?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
 
                         <!-- Rule 3 -->
                         <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-3">Communication Style</label>
-                            <textarea id="input-rule3" rows="3" placeholder="How are you planning to pass information?" class="w-full text-sm font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none"></textarea>
+                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Communication Style</label>
+                            <textarea id="input-rule3" rows="2" placeholder="How are you planning to pass information?" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
 
                         <!-- Rule 4 -->
                         <div class="flex items-start gap-2">
-                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-3">Conflict Resolution</label>
-                            <textarea id="input-rule4" rows="3" placeholder="e.g. Vote" class="w-full text-sm font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none"></textarea>
+                            <label class="w-24 text-[10px] font-bold text-emerald-600 uppercase text-right shrink-0 mt-2">Conflict Resolution</label>
+                            <textarea id="input-rule4" rows="2" placeholder="e.g. Vote" class="w-full text-xs font-medium text-slate-700 bg-slate-50 p-2 rounded border border-slate-200 focus:ring-1 focus:ring-emerald-500 outline-none resize-none leading-tight"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. The Signatures (Bottom Half of Right Col) -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3">Founding Members Execution</h3>
+                <div class="mt-auto pb-4"> <!-- mt-auto pushes this to bottom, but pb-4 ensures padding from edge -->
+                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-2">Founding Members Execution</h3>
                     
                     <div class="flex flex-col gap-2">
                         <!-- Sig 1 -->
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 1</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig1" width="250" height="45" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig1" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
                                 <button onclick="clearPad('sig1')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -144,7 +149,7 @@
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 2</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig2" width="250" height="45" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig2" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
                                 <button onclick="clearPad('sig2')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -152,7 +157,7 @@
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 3</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig3" width="250" height="45" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig3" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
                                 <button onclick="clearPad('sig3')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
@@ -160,7 +165,7 @@
                         <div class="flex items-center gap-3">
                             <div class="text-[9px] font-bold text-slate-400 uppercase w-16 text-right">Founder 4</div>
                             <div class="relative flex-grow">
-                                <canvas id="sig4" width="250" height="45" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
+                                <canvas id="sig4" width="250" height="40" class="bg-slate-50 border-b border-slate-300 w-full"></canvas>
                                 <button onclick="clearPad('sig4')" class="absolute top-0 right-0 p-1 text-[8px] text-red-300 hover:text-red-500 font-bold">CLEAR</button>
                             </div>
                         </div>
