@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Start-Up Manifesto (A4 Landscape • 3 Signatures)</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: { card: "0 12px 30px rgba(0,0,0,0.25)" }
+        }
+      }
+    }
+  </script>
+
+  <!-- html2canvas (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    html, body { height: 100%; }
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    /* Subtle tech texture */
+    .tech-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(16,185,129,0.12) 1px, transparent 0);
+      background-size: 22px 22px;
+    }
+
+    /* A4 Landscape ratio: 297 / 210 = 1.414... */
+    .a4-landscape { aspect-ratio: 1.41421356 / 1; }
+
+    /* Signature pads */
+    .sig-canvas {
+      touch-action: none;              /* critical for finger drawing */
+      background: rgba(248,250,252,0.98);
+      width: 100%;
+      height: 88px;                    /* BIGGER: easy to sign */
+      border-radius: 12px;
+      display: block;
+    }
+
+    .poster-img { object-fit: cover; width: 100%; height: 100%; display:block; }
+
+    /* Make the paper feel consistent on smaller screens */
+    @media (max-width: 520px) {
+      .paper-pad { padding: 12px !important; }
+      .tight-gap { gap: 10px !important; }
+      .tiny { font-size: 11px; }
+      .sig-canvas { height: 92px; }    /* keep it usable on phones */
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-900 text-slate-100 tech-grid">
+  <div class="mx-auto max-w-6xl px-4 py-6">
+    <!-- App Header (NOT exported) -->
+    <div class="mb-5">
+      <div class="flex items-center justify-between">
+        <h1 class="text-lg font-semibold tracking-wide">The Start-Up Manifesto</h1>
+        <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300 ring-1 ring-emerald-400/25">
+          A4 Landscape • 3 Signatures
+        </span>
+      </div>
+      <p class="mt-2 text-sm text-slate-300">
+        Fill it in, sign with your finger, then download a print-ready A4 landscape PNG.
+      </p>
+    </div>
+
+    <!-- Center the paper -->
+    <div class="flex justify-center">
+      <!-- EXPORTABLE CARD -->
+      <div
+        id="manifestoCard"
+        class="a4-landscape w-full max-w-[1123px] bg-white text-slate-900 rounded-2xl shadow-card overflow-hidden ring-1 ring-black/5 flex flex-col"
+      >
+        <!-- Top strip (fixed height) -->
+        <div class="px-6 py-4 bg-gradient-to-r from-slate-950 to-slate-800 text-white">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-[11px] uppercase tracking-[0.22em] text-emerald-300/90">
+                OFFICIAL FOUNDERS AGREEMENT
+              </div>
+              <div class="mt-1 text-sm text-slate-200">Team manifesto • Version 1.0</div>
+            </div>
+            <div class="shrink-0 rounded-xl bg-white/10 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10">
+              <div class="font-semibold text-white">📌</div>
+              <div class="mt-0.5">Keep it real.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body (flex-1 ensures we DON'T overflow / clip weirdly) -->
+        <div class="paper-pad px-6 py-4 flex-1 min-h-0">
+          <div class="grid h-full grid-cols-2 gap-4 tight-gap min-h-0">
+            <!-- LEFT: Start-up name + Poster -->
+            <div class="flex h-full min-h-0 flex-col">
+              <!-- Start-up Name -->
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <label for="startupName" class="block text-xs font-semibold text-slate-700">
+                  Start-Up Name
+                </label>
+                <input
+                  id="startupName"
+                  type="text"
+                  placeholder="Enter your start-up name…"
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-semibold text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <!-- Poster (IMPORTANT: bounded height so signatures always visible) -->
+              <div class="mt-3 flex min-h-0 flex-1 flex-col">
+                <div class="mb-2 flex items-center justify-between">
+                  <h2 class="text-sm font-semibold text-slate-900">Team Poster</h2>
+                  <span class="tiny text-xs text-slate-500">Upload photo</span>
+                </div>
+
+                <input id="posterInput" type="file" accept="image/*" class="hidden" />
+
+                <!-- bounded poster height (prevents it from stealing space) -->
+                <div
+                  id="posterArea"
+                  class="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 w-full"
+                  style="height: clamp(220px, 38vh, 360px);"
+                >
+                  <button
+                    id="uploadBtn"
+                    type="button"
+                    class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center"
+                  >
+                    <div class="h-12 w-12 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-500/25 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 16a1 1 0 0 1-1-1V8.414l-2.293 2.293a1 1 0 1 1-1.414-1.414l4-4a1 1 0 0 1 1.414 0l4 4a1 1 0 1 1-1.414 1.414L13 8.414V15a1 1 0 0 1-1 1z"/>
+                        <path d="M5 18a2 2 0 0 1-2-2v-1a1 1 0 1 1 2 0v1h14v-1a1 1 0 1 1 2 0v1a2 2 0 0 1-2 2H5z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-base font-semibold text-slate-900">Upload Team Poster</div>
+                      <div class="mt-1 text-xs text-slate-500">Tap to choose a photo</div>
+                    </div>
+                  </button>
+
+                  <img id="posterImg" alt="Uploaded poster" class="poster-img hidden" crossorigin="anonymous" />
+                </div>
+
+                <div class="mt-2 flex items-center justify-between">
+                  <button
+                    id="changePosterBtn"
+                    type="button"
+                    class="hidden text-xs font-medium text-emerald-700 hover:text-emerald-800"
+                  >
+                    Change poster
+                  </button>
+                  <button
+                    id="removePosterBtn"
+                    type="button"
+                    class="hidden text-xs font-medium text-rose-600 hover:text-rose-700"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Rules + Signatures -->
+            <div class="flex h-full min-h-0 flex-col">
+              <!-- Rules (COMPACT: use single-line inputs so signatures fit) -->
+              <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="mb-3 flex items-center justify-between">
+                  <h2 class="text-sm font-semibold text-slate-900">The 4 Golden Rules</h2>
+                  <span class="tiny text-xs text-slate-500">Non-negotiables</span>
+                </div>
+
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-xs font-semibold text-slate-700" for="rule1">Rule 1: Work Schedule</label>
+                    <input
+                      id="rule1"
+                      type="text"
+                      placeholder="When do we work?"
+                      class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-semibold text-slate-700" for="rule2">Rule 2: Location Strategy</label>
+                    <input
+                      id="rule2"
+                      type="text"
+                      placeholder="Where do we meet/work?"
+                      class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-semibold text-slate-700" for="rule3">Rule 3: Communication Style</label>
+                    <input
+                      id="rule3"
+                      type="text"
+                      placeholder="How do we communicate?"
+                      class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="text-xs font-semibold text-slate-700" for="rule4">Rule 4: Conflict Resolution</label>
+                    <input
+                      id="rule4"
+                      type="text"
+                      placeholder="What if we disagree?"
+                      class="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Signatures (now guaranteed visible + larger pads) -->
+              <div class="mt-3 flex min-h-0 flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="mb-2 flex items-center justify-between">
+                  <h2 class="text-sm font-semibold text-slate-900">Co-Founders Signatures</h2>
+                  <span class="tiny text-xs text-slate-500">Sign with finger</span>
+                </div>
+
+                <div class="min-h-0 flex-1 space-y-3">
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <div class="mb-2 flex items-center justify-between">
+                      <div class="text-xs font-semibold text-slate-700">Founder 1</div>
+                      <button data-clear="sig1" class="text-xs font-medium text-rose-600 hover:text-rose-700">Clear</button>
+                    </div>
+                    <canvas id="sig1" class="sig-canvas border border-slate-200"></canvas>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <div class="mb-2 flex items-center justify-between">
+                      <div class="text-xs font-semibold text-slate-700">Founder 2</div>
+                      <button data-clear="sig2" class="text-xs font-medium text-rose-600 hover:text-rose-700">Clear</button>
+                    </div>
+                    <canvas id="sig2" class="sig-canvas border border-slate-200"></canvas>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                    <div class="mb-2 flex items-center justify-between">
+                      <div class="text-xs font-semibold text-slate-700">Founder 3</div>
+                      <button data-clear="sig3" class="text-xs font-medium text-rose-600 hover:text-rose-700">Clear</button>
+                    </div>
+                    <canvas id="sig3" class="sig-canvas border border-slate-200"></canvas>
+                  </div>
+                </div>
+
+                <div class="mt-3 rounded-xl bg-emerald-50 p-2 text-[11px] text-emerald-900 ring-1 ring-emerald-200">
+                  💡 Tip: If your phone scrolls while signing, keep your finger inside the signature box.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /manifestoCard -->
+    </div>
+
+    <!-- Action area (NOT exported) -->
+    <div class="mt-5 space-y-3">
+      <button
+        id="downloadBtn"
+        class="w-full rounded-2xl bg-emerald-500 px-5 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-500/20 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        Download Official Manifesto (A4 Landscape PNG)
+      </button>
+
+      <div class="flex items-center justify-between text-xs text-slate-300">
+        <button id="resetBtn" class="rounded-xl px-3 py-2 hover:bg-white/5">Reset everything</button>
+        <span id="statusText" class="text-slate-400">Autosaving…</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Utilities ----------
+    const LS_KEY = "startupManifesto_a4_landscape_v3_sig3";
+    const A4_PX = { w: 3508, h: 2480 }; // A4 landscape @ 300 DPI
+
+    function $(id) { return document.getElementById(id); }
+
+    function debounce(fn, ms = 250) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    function setStatus(msg) {
+      const el = $("statusText");
+      if (!el) return;
+      el.textContent = msg;
+      clearTimeout(setStatus._t);
+      setStatus._t = setTimeout(() => (el.textContent = "Autosaving…"), 1200);
+    }
+
+    // ---------- State ----------
+    const state = {
+      startupName: "",
+      rules: ["", "", "", ""],
+      posterDataUrl: "",
+      sigData: ["", "", ""], // ONLY 3 signatures
+    };
+
+    function normalizeArray(arr, len) {
+      const out = Array.isArray(arr) ? arr.slice(0, len) : [];
+      while (out.length < len) out.push("");
+      return out;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          state.startupName = parsed.startupName ?? "";
+          state.rules = normalizeArray(parsed.rules, 4);
+          state.posterDataUrl = parsed.posterDataUrl ?? "";
+          state.sigData = normalizeArray(parsed.sigData, 3);
+        }
+      } catch (e) {}
+    }
+
+    const persistState = debounce(() => {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(state));
+        setStatus("Saved ✔️");
+      } catch (e) {
+        setStatus("Couldn’t save ❗");
+      }
+    }, 200);
+
+    function resetAll() {
+      localStorage.removeItem(LS_KEY);
+      location.reload();
+    }
+
+    // ---------- Poster Upload ----------
+    function wirePoster() {
+      const input = $("posterInput");
+      const uploadBtn = $("uploadBtn");
+      const posterImg = $("posterImg");
+      const changeBtn = $("changePosterBtn");
+      const removeBtn = $("removePosterBtn");
+
+      function showPoster(dataUrl) {
+        if (!dataUrl) return;
+        posterImg.src = dataUrl;
+        posterImg.classList.remove("hidden");
+        uploadBtn.classList.add("hidden");
+        changeBtn.classList.remove("hidden");
+        removeBtn.classList.remove("hidden");
+      }
+
+      function hidePoster() {
+        posterImg.src = "";
+        posterImg.classList.add("hidden");
+        uploadBtn.classList.remove("hidden");
+        changeBtn.classList.add("hidden");
+        removeBtn.classList.add("hidden");
+      }
+
+      uploadBtn?.addEventListener("click", () => input.click());
+      changeBtn?.addEventListener("click", () => input.click());
+      removeBtn?.addEventListener("click", () => {
+        state.posterDataUrl = "";
+        hidePoster();
+        persistState();
+      });
+
+      input?.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.posterDataUrl = reader.result;
+          showPoster(state.posterDataUrl);
+          persistState();
+          input.value = "";
+        };
+        reader.readAsDataURL(file);
+      });
+
+      if (state.posterDataUrl) showPoster(state.posterDataUrl);
+      else hidePoster();
+    }
+
+    // ---------- Inputs ----------
+    function wireInputs() {
+      const nameEl = $("startupName");
+      const ruleEls = [$("rule1"), $("rule2"), $("rule3"), $("rule4")];
+
+      nameEl.value = state.startupName;
+      nameEl.addEventListener("input", () => {
+        state.startupName = nameEl.value;
+        persistState();
+      });
+
+      ruleEls.forEach((el, idx) => {
+        el.value = state.rules[idx] || "";
+        el.addEventListener("input", () => {
+          state.rules[idx] = el.value;
+          persistState();
+        });
+      });
+    }
+
+    // ---------- Signature Pads (robust + visible) ----------
+    function resizeCanvasToDisplaySize(canvas, keepContent = true) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
+      const newW = Math.max(1, Math.round(rect.width * dpr));
+      const newH = Math.max(1, Math.round(rect.height * dpr));
+
+      if (canvas.width === newW && canvas.height === newH) return;
+
+      let snapshot = null;
+      if (keepContent && canvas.width && canvas.height) snapshot = canvas.toDataURL("image/png");
+
+      canvas.width = newW;
+      canvas.height = newH;
+
+      const ctx = canvas.getContext("2d");
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = Math.max(2, 3.2 * dpr); // thicker so it's clearly visible
+
+      if (snapshot) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        img.src = snapshot;
+      }
+    }
+
+    function drawImageToCanvas(canvas, dataUrl) {
+      if (!dataUrl) return;
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+      img.src = dataUrl;
+    }
+
+    function clearCanvas(canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function setupSignatureCanvas(canvas, index) {
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+
+      // Make strokes bold & visible
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = Math.max(2, 3.2 * dpr);
+
+      let drawing = false;
+
+      function getPos(ev) {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        return {
+          x: (ev.clientX - rect.left) * dpr,
+          y: (ev.clientY - rect.top) * dpr
+        };
+      }
+
+      function start(ev) {
+        drawing = true;
+        canvas.setPointerCapture?.(ev.pointerId);
+        const p = getPos(ev);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ev.preventDefault();
+      }
+
+      function move(ev) {
+        if (!drawing) return;
+        const p = getPos(ev);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        ev.preventDefault();
+      }
+
+      function end(ev) {
+        if (!drawing) return;
+        drawing = false;
+        ev.preventDefault();
+        state.sigData[index] = canvas.toDataURL("image/png");
+        persistState();
+      }
+
+      // Pointer events (touch + mouse)
+      canvas.addEventListener("pointerdown", start, { passive: false });
+      canvas.addEventListener("pointermove", move, { passive: false });
+      canvas.addEventListener("pointerup", end, { passive: false });
+      canvas.addEventListener("pointercancel", end, { passive: false });
+      canvas.addEventListener("pointerleave", end, { passive: false });
+
+      // Size AFTER layout has stabilized (fixes "barely visible" on some mobiles)
+      requestAnimationFrame(() => {
+        resizeCanvasToDisplaySize(canvas, false);
+        if (state.sigData[index]) drawImageToCanvas(canvas, state.sigData[index]);
+      });
+    }
+
+    function wireSignatures() {
+      const ids = ["sig1", "sig2", "sig3"];
+      const canvases = ids.map(id => $(id));
+
+      canvases.forEach((c, idx) => setupSignatureCanvas(c, idx));
+
+      document.querySelectorAll("[data-clear]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-clear");
+          const idx = ids.indexOf(id);
+          const canvas = $(id);
+          if (!canvas || idx === -1) return;
+          clearCanvas(canvas);
+          state.sigData[idx] = "";
+          persistState();
+          setStatus("Cleared ✔️");
+        });
+      });
+
+      // Keep crisp on rotate/resize
+      const onResize = debounce(() => {
+        canvases.forEach((c, i) => {
+          resizeCanvasToDisplaySize(c, true);
+          // also persist after resize so the restored stroke isn't lost
+          state.sigData[i] = c.toDataURL("image/png");
+        });
+        persistState();
+      }, 200);
+
+      window.addEventListener("resize", onResize);
+      window.addEventListener("orientationchange", onResize);
+    }
+
+    // ---------- A4 Landscape Download ----------
+    async function downloadManifestoA4Landscape() {
+      const card = $("manifestoCard");
+      const btn = $("downloadBtn");
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Generating A4 Landscape PNG…";
+
+        // Snapshot signatures (safety)
+        ["sig1","sig2","sig3"].forEach((id, i) => {
+          const c = $(id);
+          if (c) state.sigData[i] = c.toDataURL("image/png");
+        });
+        persistState();
+
+        // Scale so output width becomes exactly 3508px
+        const rect = card.getBoundingClientRect();
+        const scale = A4_PX.w / rect.width;
+
+        const canvas = await html2canvas(card, {
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          allowTaint: true,
+          scale,
+          width: rect.width,
+          height: rect.height,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+          logging: false,
+        });
+
+        const dataUrl = canvas.toDataURL("image/png");
+
+        const a = document.createElement("a");
+        const safeName = (state.startupName || "Startup_Manifesto")
+          .trim()
+          .replace(/[^\w\-]+/g, "_")
+          .slice(0, 50);
+
+        a.href = dataUrl;
+        a.download = `${safeName}_Founders_Agreement_A4_Landscape.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setStatus("Downloaded ✔️");
+      } catch (e) {
+        console.error(e);
+        alert("Sorry! Download failed. Try closing other tabs/apps and try again.");
+        setStatus("Download failed ❗");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Download Official Manifesto (A4 Landscape PNG)";
+      }
+    }
+
+    // ---------- Boot ----------
+    (function init() {
+      loadState();
+      wirePoster();
+      wireInputs();
+      wireSignatures();
+
+      $("downloadBtn").addEventListener("click", downloadManifestoA4Landscape);
+      $("resetBtn").addEventListener("click", () => {
+        const ok = confirm("Reset everything? This clears poster, rules, and signatures on this device.");
+        if (ok) resetAll();
+      });
+
+      setStatus("Ready ✔️");
+    })();
+  </script>
+</body>
+</html>
