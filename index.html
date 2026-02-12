@@ -336,6 +336,12 @@
         // --- DRAG / PAN LOGIC ---
         
         function startPan(e) {
+            // FIX: Only allow panning if image is loaded/visible.
+            // This prevents preventingDefault behavior on the empty upload zone.
+            if (imagePreview.classList.contains('hidden')) {
+                return; 
+            }
+
             e.preventDefault(); // Prevent scrolling on touch
             imgState.panning = true;
             imgState.startX = (e.touches ? e.touches[0].clientX : e.clientX) - imgState.pointX;
