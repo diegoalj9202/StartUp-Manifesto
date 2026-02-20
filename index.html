@@ -235,14 +235,17 @@
             </div>
 
             <!-- Footer Buttons -->
-            <div class="flex gap-3 justify-end pt-2">
-                <button onclick="closePreview()" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100 border border-slate-200">Keep Editing</button>
-                <button id="save-final-btn" class="px-4 py-2 rounded-lg font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Save Image
-                </button>
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center pt-2 w-full">
+                <span class="text-[10px] text-slate-500 text-center md:text-left">💡 iOS Tip: If button fails, long-press the image to "Save to Photos"</span>
+                <div class="flex gap-3 w-full md:w-auto justify-end">
+                    <button onclick="closePreview()" class="px-4 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100 border border-slate-200">Keep Editing</button>
+                    <button id="save-final-btn" class="px-4 py-2 rounded-lg font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Save Image
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -506,12 +509,46 @@
                 finalPreviewImg.src = dataUrl;
                 previewModal.classList.remove('hidden');
 
+                // Helper to convert Data URL to Blob for native iOS sharing
+                function dataURItoBlob(dataURI) {
+                    const byteString = atob(dataURI.split(',')[1]);
+                    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    return new Blob([ab], {type: mimeString});
+                }
+
                 // Set up the final save button
-                saveFinalBtn.onclick = () => {
-                    const link = document.createElement('a');
-                    link.download = `manifesto-landscape-${Date.now()}.png`;
-                    link.href = dataUrl;
-                    link.click();
+                saveFinalBtn.onclick = async () => {
+                    const fileName = `manifesto-landscape-${Date.now()}.png`;
+                    try {
+                        const blob = dataURItoBlob(dataUrl);
+                        const file = new File([blob], fileName, { type: 'image/png' });
+
+                        // Try Native Web Share API (Brings up iOS Share Sheet with "Save Image")
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Start-Up Manifesto',
+                            });
+                        } else {
+                            // Fallback for Desktop/Android
+                            const link = document.createElement('a');
+                            link.download = fileName;
+                            link.href = dataUrl;
+                            link.click();
+                        }
+                    } catch (error) {
+                        console.log('Share failed or was cancelled.', error);
+                        // Final fallback just in case
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = dataUrl;
+                        link.click();
+                    }
                 };
 
             }).catch(err => {
