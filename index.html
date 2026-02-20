@@ -206,7 +206,12 @@
     </div>
 
     <!-- ACTION BUTTONS -->
-    <div class="w-full max-w-md pb-10 mt-4 px-4">
+    <div class="w-full max-w-md pb-10 mt-4 px-4 flex flex-col items-center">
+        <!-- Autosave Indicator -->
+        <div class="h-4 mb-2">
+            <span id="save-indicator" class="text-[10px] text-emerald-400 font-medium opacity-0 transition-opacity duration-300">✓ Progress saved</span>
+        </div>
+        
         <button id="preview-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-lg shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -251,20 +256,62 @@
     </div>
 
     <script>
+        // --- 0. AUTOSAVE INDICATOR ---
+        function showSaveIndicator() {
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) {
+                indicator.classList.remove('opacity-0');
+                clearTimeout(indicator.timeout);
+                indicator.timeout = setTimeout(() => {
+                    indicator.classList.add('opacity-0');
+                }, 2000);
+            }
+        }
+
         // --- 1. LOCAL STORAGE PERSISTENCE ---
         const inputIds = ['input-company', 'input-rule1', 'input-rule2', 'input-rule3', 'input-rule4'];
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Restore Text
             inputIds.forEach(id => {
                 const savedValue = localStorage.getItem(id);
                 if (savedValue) document.getElementById(id).value = savedValue;
             });
+            
+            // Restore Image & State
+            const savedImage = localStorage.getItem('manifesto-image');
+            if (savedImage) {
+                const imagePreview = document.getElementById('poster-preview');
+                const uploadPlaceholder = document.getElementById('upload-placeholder');
+                const imgControls = document.getElementById('img-controls');
+                const dragHint = document.getElementById('drag-hint');
+                const imageInput = document.getElementById('poster-upload');
+                const zoomSlider = document.getElementById('zoom-slider');
+
+                imagePreview.src = savedImage;
+                imagePreview.classList.remove('hidden');
+                uploadPlaceholder.classList.add('hidden');
+                imgControls.classList.remove('hidden');
+                imgControls.classList.add('flex');
+                dragHint.classList.remove('hidden');
+                imageInput.classList.add('hidden');
+
+                const savedStateStr = localStorage.getItem('manifesto-img-state');
+                if (savedStateStr) {
+                    imgState = JSON.parse(savedStateStr);
+                    zoomSlider.value = imgState.scale;
+                    updateTransform();
+                }
+            }
+
+            // Restore Signatures
             ['sig1', 'sig2', 'sig3'].forEach(setupCanvas);
         });
 
         inputIds.forEach(id => {
             document.getElementById(id).addEventListener('input', (e) => {
                 localStorage.setItem(id, e.target.value);
+                showSaveIndicator();
             });
         });
 
@@ -293,11 +340,18 @@
             imgState = { scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0 };
             zoomSlider.value = 1;
             updateTransform();
+            saveImageState();
         }
 
         // Apply CSS Transform
         function updateTransform() {
             imagePreview.style.transform = `translate(${imgState.pointX}px, ${imgState.pointY}px) scale(${imgState.scale})`;
+        }
+
+        // Save Image Transform State
+        function saveImageState() {
+            localStorage.setItem('manifesto-img-state', JSON.stringify(imgState));
+            showSaveIndicator();
         }
 
         // Handle File Select
@@ -307,6 +361,14 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imagePreview.src = e.target.result;
+                    
+                    // Save to local storage (wrapped in try/catch in case image is too large for storage quota)
+                    try {
+                        localStorage.setItem('manifesto-image', e.target.result);
+                        showSaveIndicator();
+                    } catch (err) {
+                        console.warn("Image too large to autosave locally. It will display but not persist on refresh.");
+                    }
                     
                     // UI Transitions
                     imagePreview.classList.remove('hidden');
@@ -334,6 +396,11 @@
         zoomSlider.addEventListener('input', (e) => {
             imgState.scale = parseFloat(e.target.value);
             updateTransform();
+        });
+        
+        // Save zoom state when user stops dragging the slider
+        zoomSlider.addEventListener('change', () => {
+            saveImageState();
         });
 
         // --- DRAG / PAN LOGIC ---
@@ -364,8 +431,10 @@
         }
 
         function endPan() {
+            if (!imgState.panning) return;
             imgState.panning = false;
             imagePreview.classList.remove('cursor-grabbing');
+            saveImageState(); // Autosave new position
         }
 
         // Attach listeners to the DROPZONE or IMAGE
@@ -394,6 +463,14 @@
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#1e293b';
 
+            // Load saved signature if exists
+            const savedSig = localStorage.getItem(`manifesto-sig-${canvasId}`);
+            if (savedSig) {
+                const img = new Image();
+                img.onload = () => ctx.drawImage(img, 0, 0);
+                img.src = savedSig;
+            }
+
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / rect.width;
@@ -420,7 +497,14 @@
                 lastX = pos.x; lastY = pos.y;
             }
 
-            function endDraw() { isDrawing = false; }
+            function endDraw() { 
+                if (!isDrawing) return;
+                isDrawing = false; 
+                try {
+                    localStorage.setItem(`manifesto-sig-${canvasId}`, canvas.toDataURL());
+                    showSaveIndicator();
+                } catch(err) {}
+            }
 
             canvas.addEventListener('mousedown', startDraw);
             canvas.addEventListener('mousemove', draw);
@@ -435,6 +519,8 @@
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            localStorage.removeItem(`manifesto-sig-${canvasId}`);
+            showSaveIndicator();
         }
 
         // --- 4. PREVIEW & DOWNLOAD ---
